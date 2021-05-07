@@ -74,7 +74,7 @@ def SendMail(subject,body):
 	sender_email = smtp.getSenderMail()
 	receiver_email = smtp.getReceiverMail()
 	password = smtp.getSenderPass()
-	message = "From:\"Alarmanlage\" <alarmanlage@diyww.de>\nTo:\"Alarmempfaenger\"\nSubject:[AlarmanlageStatus] {}\n\n{}".format(subject,body)
+	message = "From:\"Alarmanlage\" <{}>\nTo:\"Alarmempfaenger\"\nSubject:[AlarmanlageStatus] {}\n\n{}".format(smtp.getSenderMail(),subject,body)
 
 	# Create a secure SSL context
 	context = ssl.create_default_context()

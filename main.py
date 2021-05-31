@@ -39,7 +39,7 @@ class GracefulKiller: # Hier wird auf Kill-Signale des Betriebssystems reagiert
 		signal.signal(signal.SIGTERM, self.exit_gracefully)
 		signal.signal(signal.SIGQUIT, self.exit_gracefully)
 	def exit_gracefully(self,signum, frame):
-		SendMail("Raspberrypi wurde heruntergefahren oder ein Fehler ist aufgetreten","ab jetzt folgen keine Statusmeldungen mehr!\nDie Alarmanlage laeuft moeglicherweise noch...\nBeendet durch Signal: " + str(signum))
+		SendMail("Das Ueberwachungsprogramm wurde beendet","ab jetzt folgen keine Statusmeldungen mehr!\n\nBeendet durch Signal: " + str(signum))
 		sys.exit(0)
 
 
@@ -55,10 +55,13 @@ def GetCurrentState():
 
 		if(GPIO.input(13) == 1 and GPIO.input(6) == 0):
 			state = "unarmed"
-		if(GPIO.input(13) == 0 and GPIO.input(6) == 1 and GPIO.input(19) == 1):
+		if(GPIO.input(13) == 0 and GPIO.input(19) == 1 and GPIO.input(6) == 1):
 			state = "alarm"
-		if(GPIO.input(13) == 0 and GPIO.input(6) == 1 and GPIO.input(19) == 0):
+		if(GPIO.input(13) == 0 and GPIO.input(19) == 1 and GPIO.input(6) == 0):
 			state = "armed"
+
+
+		#print(state)
 
 	except Exception as err:
 		print(err, file=sys.stderr)
@@ -76,11 +79,11 @@ def SendMail(subject,body):
 	password = smtp.getSenderPass()
 	message = "From:\"Alarmanlage\" <{}>\nTo:\"Alarmempfaenger\"\nSubject:[AlarmanlageStatus] {}\n\n{}".format(smtp.getSenderMail(),subject,body)
 
-	# Create a secure SSL context
-	context = ssl.create_default_context()
-
-	# Try to log in to server and send email
 	try:
+		# Try to create a secure SSL context
+		context = ssl.create_default_context()
+
+		# Try to log in to server and send email
 		server = smtplib.SMTP(smtp_server,port)
 		server.ehlo() # Can be omitted
 		server.starttls(context=context) # Secure the connection
@@ -120,6 +123,7 @@ def main():
 				SendMail("Anlage scharf mit Fehler" , "Die Alarmanlage wurde soeben scharf geschaltet.\nBeim Setzen des Status auf der Webseite ist ein Fehler aufgetreten.")
 			else:
 				SendMail("Anlage scharf" , "Die Alarmanlage wurde soeben scharf geschaltet.")
+			time.sleep(90)
 
 		if(state == "unarmed"):
 			print("The alarm system is in unarmed state")

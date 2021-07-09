@@ -90,13 +90,10 @@ def SendMail(subject,body):
 		server.ehlo() # Can be omitted
 		server.login(sender_email, password)
 		server.sendmail(sender_email, receiver_email, message)
+		server.quit()
 	except Exception as e:
 		# Print any error messages to stdout
 		print(e, file=sys.stderr)
-	finally:
-		if "server" in locals():
-			server.quit()
-
 
 
 

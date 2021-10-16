@@ -129,7 +129,7 @@ def main():
 			else:
 				SendMail("Anlage unscharf" , "Die Alarmanlage wurde soeben unscharf geschaltet.")
 
-		if(state == "alarm"):
+		if(state == "alarm" and privious_state == "armed"):
 			print("The alarm system is in active alarm state")
 			SendMail("ALARM!" , "Die Alarmanlage hat soeben Alarm ausgeloest!\nEs folgt keine weitere Meldung zu diesem Alarm!")
 

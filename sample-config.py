@@ -15,6 +15,7 @@ class smtp:
     senderMail = "example@example.com"
     senderPass = "bar"
     receiverMail = "example@example.com"
+    receiverMailAlarm = "alarm@example.com"
     def getServer():
         return(smtp.server)
     def getPort():
@@ -25,6 +26,8 @@ class smtp:
         return(smtp.senderMail)
     def getReceiverMail():
         return(smtp.receiverMail)
+    def getReceiverMailAlarm():
+        return(smtp.receiverMailAlarm)
 
 
 if __name__ == "__main__":

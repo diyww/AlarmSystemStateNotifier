@@ -39,7 +39,7 @@ class GracefulKiller: # Hier wird auf Kill-Signale des Betriebssystems reagiert
 		signal.signal(signal.SIGTERM, self.exit_gracefully)
 		signal.signal(signal.SIGQUIT, self.exit_gracefully)
 	def exit_gracefully(self,signum, frame):
-		SendMail("Das Ueberwachungsprogramm wurde beendet","ab jetzt folgen keine Statusmeldungen mehr!\n\nBeendet durch Signal: " + str(signum))
+		SendMail("Das Ueberwachungsprogramm wurde beendet","ab jetzt folgen keine Statusmeldungen mehr!\n\nBeendet durch Signal: " + str(signum) , "Stop")
 		sys.exit(0)
 
 
@@ -71,13 +71,17 @@ def GetCurrentState():
 		GPIO.cleanup() # cleanup all GPIO
 		return(state)
 
-def SendMail(subject,body):
+def SendMail(subject,body,type):
 	smtp_server = smtp.getServer()
 	port = smtp.getPort()  # For starttls
 	sender_email = smtp.getSenderMail()
 	receiver_email = smtp.getReceiverMail()
 	password = smtp.getSenderPass()
-	message = "From:\"Alarmanlage\" <{}>\nTo:\"Alarmempfaenger\"\nSubject:[AlarmanlageStatus] {}\n\n{}".format(smtp.getSenderMail(),subject,body)
+	message = "From:\"Alarmanlage\" <{}>\nTo:\"Statusempfaenger\"\nSubject:[AlarmanlageStatus] {}\n\n{}".format(sender_email,subject,body)
+
+	if(type == "Alarm"):
+		receiver_email = smtp.getReceiverMailAlarm()
+		message = "From:\"Alarmanlage\" <{}>\nTo:\"Alarmempfaenger\"\nSubject:[AlarmanlageStatus] {}\n\n{}".format(sender_email,subject,body)
 
 	try:
 		# Try to create a secure SSL context
@@ -111,31 +115,31 @@ def main():
 
 		if(privious_state == "unset"):
 			print("The alarm system has just started")
-			SendMail("Das Ueberwachungsprogramm wurde gestartet" , "ab jetzt folgen Statusaenderungen...")
+			SendMail("Das Ueberwachungsprogramm wurde gestartet" , "ab jetzt folgen Statusaenderungen..." , "Start")
 			time.sleep(1)
 
 		if(state == "armed"):
 			print("The alarm system is in armed state")
 			if SetWerkstattStatusWebseite("closed") == False:
-				SendMail("Anlage scharf mit Fehler" , "Die Alarmanlage wurde soeben scharf geschaltet.\nBeim Setzen des Status auf der Webseite ist ein Fehler aufgetreten.")
+				SendMail("Anlage scharf mit Fehler" , "Die Alarmanlage wurde soeben scharf geschaltet.\nBeim Setzen des Status auf der Webseite ist ein Fehler aufgetreten." , "Error")
 			else:
-				SendMail("Anlage scharf" , "Die Alarmanlage wurde soeben scharf geschaltet.")
+				SendMail("Anlage scharf" , "Die Alarmanlage wurde soeben scharf geschaltet." , "Status")
 			time.sleep(90)
 
 		if(state == "unarmed"):
 			print("The alarm system is in unarmed state")
 			if SetWerkstattStatusWebseite("open") == False:
-				SendMail("Anlage unscharf mit Fehler" , "Die Alarmanlage wurde soeben unscharf geschaltet.\nBeim Setzen des Status auf der Webseite ist ein Fehler aufgetreten.")
+				SendMail("Anlage unscharf mit Fehler" , "Die Alarmanlage wurde soeben unscharf geschaltet.\nBeim Setzen des Status auf der Webseite ist ein Fehler aufgetreten." , "Error")
 			else:
-				SendMail("Anlage unscharf" , "Die Alarmanlage wurde soeben unscharf geschaltet.")
+				SendMail("Anlage unscharf" , "Die Alarmanlage wurde soeben unscharf geschaltet." , "Status")
 
 		if(state == "alarm" and privious_state == "armed"):
 			print("The alarm system is in active alarm state")
-			SendMail("ALARM!" , "Die Alarmanlage hat soeben Alarm ausgeloest!\nEs folgt keine weitere Meldung zu diesem Alarm!")
+			SendMail("ALARM!" , "Die Alarmanlage hat soeben Alarm ausgeloest!\nEs folgt keine weitere Meldung zu diesem Alarm!" , "Alarm")
 
 		if(state == "error" or state == "unknown"):
 			print("The alarm system is in faulty state", file=sys.stderr)
-			SendMail("Systemfehler" , "Die Alarmanlage meldet einen unbekannten Status oder arbeitet fehlerhaft.")
+			SendMail("Systemfehler" , "Die Alarmanlage meldet einen unbekannten Status oder arbeitet fehlerhaft." , "Error")
 
 
 if __name__ == "__main__": # Wenn dieses Programm direkt aufgerufen wird, dann Starte die Funktion main()

@@ -32,6 +32,24 @@ def SetWerkstattStatusWebseite(status):
 	print("Der HTTP-Statuscode war: {}".format(str(r1.status)), file=sys.stderr)
 	return (False)
 
+
+def OpenAlarmURL():
+        RequestString = AlarmURL.getResourceString()
+
+        try:
+                conn = http.client.HTTPSConnection(AlarmURL.getServer())
+                conn.request("GET", RequestString)
+                r1 = conn.getresponse()
+        except Exception as e:
+                print(e, file=sys.stderr)
+                return(False)
+
+        if r1.status==200:
+                return (True)
+        print("Der HTTP-Statuscode war: {}".format(str(r1.status)), file=sys.stderr)
+        return (False)
+
+
 class GracefulKiller: # Hier wird auf Kill-Signale des Betriebssystems reagiert
 	kill_now = False
 	def __init__(self):
@@ -136,6 +154,7 @@ def main():
 		if(state == "alarm" and privious_state == "armed"):
 			print("The alarm system is in active alarm state")
 			SendMail("ALARM!" , "Die Alarmanlage hat soeben Alarm ausgeloest!\nEs folgt keine weitere Meldung zu diesem Alarm!" , "Alarm")
+			OpenAlarmURL()
 
 		if(state == "error" or state == "unknown"):
 			print("The alarm system is in faulty state", file=sys.stderr)

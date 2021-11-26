@@ -8,6 +8,13 @@ class SpaceState:
     def getSecret():
         return(SpaceState.secret)
 
+class AlarmURL:
+    ResourceString = "/foo.html"
+    Server = "example.com"
+    def getResourceString():
+        return(AlarmURL.ResourceString)
+    def getServer():
+	return(AlarmURL.Server)
 
 class smtp:
     server = "example.com"

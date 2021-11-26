@@ -8,6 +8,8 @@ import signal
 import http.client
 from config import *
 
+sys.stdout = Unbuffered(sys.stdout)
+
 def SetWerkstattStatusWebseite(status):
 	if status == "open":
 		status = "1"

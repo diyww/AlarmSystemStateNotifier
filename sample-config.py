@@ -16,6 +16,23 @@ class AlarmURL:
     def getServer():
 	return(AlarmURL.Server)
 
+class StatusAufURL:
+    ResourceString = "/foo.html"
+    Server = "example.com"
+    def getResourceString():
+        return(StatusAufURL.ResourceString)
+    def getServer():
+        return(StatusAufURL.Server)
+
+class StatusZuURL:
+    ResourceString = "/foo.html"
+    Server = "example.com"
+    def getResourceString():
+        return(StatusZuURL.ResourceString)
+    def getServer():
+        return(StatusZuURL.Server)
+
+
 class smtp:
     server = "example.com"
     port = 587 #STARTTLS-Port

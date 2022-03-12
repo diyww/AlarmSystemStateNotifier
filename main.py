@@ -33,21 +33,57 @@ def SetWerkstattStatusWebseite(status):
 	return (False)
 
 
-def OpenAlarmURL():
-        RequestString = AlarmURL.getResourceString()
+def OpenURL(MessageType):
 
-        try:
-                conn = http.client.HTTPSConnection(AlarmURL.getServer())
-                conn.request("GET", RequestString)
-                r1 = conn.getresponse()
-        except Exception as e:
-                print(e, file=sys.stderr)
-                return(False)
 
-        if r1.status==200:
-                return (True)
-        print("Der HTTP-Statuscode war: {}".format(str(r1.status)), file=sys.stderr)
-        return (False)
+	if(MessageType == "Alarm"):
+
+		RequestString = AlarmURL.getResourceString()
+
+		try:
+			conn = http.client.HTTPSConnection(AlarmURL.getServer())
+			conn.request("GET", RequestString)
+			r1 = conn.getresponse()
+		except Exception as e:
+			print(e, file=sys.stderr)
+			return(False)
+
+		if r1.status==200:
+			return (True)
+		print("Der HTTP-Statuscode war: {}".format(str(r1.status)), file=sys.stderr)
+		return (False)
+
+	if(MessageType == "StatusAuf"):
+		RequestString = StatusAufURL.getResourceString()
+
+		try:
+			conn = http.client.HTTPSConnection(StatusAufURL.getServer())
+			conn.request("GET", RequestString)
+			r1 = conn.getresponse()
+		except Exception as e:
+			print(e, file=sys.stderr)
+			return(False)
+
+		if r1.status==200:
+			return (True)
+		print("Der HTTP-Statuscode war: {}".format(str(r1.status)), file=sys.stderr)
+		return (False)
+
+	if(MessageType == "StatusZu"):
+		RequestString = StatusZuURL.getResourceString()
+
+		try:
+			conn = http.client.HTTPSConnection(StatusZuURL.getServer())
+			conn.request("GET", RequestString)
+			r1 = conn.getresponse()
+		except Exception as e:
+			print(e, file=sys.stderr)
+			return(False)
+
+		if r1.status==200:
+			return (True)
+		print("Der HTTP-Statuscode war: {}".format(str(r1.status)), file=sys.stderr)
+		return (False)
 
 
 class GracefulKiller: # Hier wird auf Kill-Signale des Betriebssystems reagiert
@@ -142,6 +178,7 @@ def main():
 				SendMail("Anlage scharf mit Fehler" , "Die Alarmanlage wurde soeben scharf geschaltet.\nBeim Setzen des Status auf der Webseite ist ein Fehler aufgetreten." , "Error")
 			else:
 				SendMail("Anlage scharf" , "Die Alarmanlage wurde soeben scharf geschaltet." , "Status")
+			OpenURL("StatusZu")
 			time.sleep(90)
 
 		if(state == "unarmed"):
@@ -150,11 +187,12 @@ def main():
 				SendMail("Anlage unscharf mit Fehler" , "Die Alarmanlage wurde soeben unscharf geschaltet.\nBeim Setzen des Status auf der Webseite ist ein Fehler aufgetreten." , "Error")
 			else:
 				SendMail("Anlage unscharf" , "Die Alarmanlage wurde soeben unscharf geschaltet." , "Status")
+			OpenURL("StatusAuf")
 
 		if(state == "alarm" and privious_state == "armed"):
 			print("The alarm system is in active alarm state")
 			SendMail("ALARM!" , "Die Alarmanlage hat soeben Alarm ausgeloest!\nEs folgt keine weitere Meldung zu diesem Alarm!" , "Alarm")
-			OpenAlarmURL()
+			OpenURL("Alarm")
 
 		if(state == "error" or state == "unknown"):
 			print("The alarm system is in faulty state", file=sys.stderr)
